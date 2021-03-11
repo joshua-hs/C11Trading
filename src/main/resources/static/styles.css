@@ -7,22 +7,24 @@
 	margin-right: auto;
 }
 
+#assetDropdownHeader {
+    width: 150px;
+}
+
 #trade-options {
-	background-color: red;
 	margin-top: 30px;
 }
 
-#ticker {
+#trade-container {
 	text-align: center;
 }
 
-#share-quantity-or-cash-amount {
-	display: flex;
-	float: left;
-	margin-top: 20px;
-	margin-left: 0px;
-	align-items: top;
-	
+#or {
+    margin-top: 10px;
+}
+
+#main-heading {
+    text-align: center;
 }
 
 .main-table {
@@ -30,7 +32,6 @@
 }
 
 .main-container {
-	background-color: green;
 	display: flex;
 	margin-top: 50px;
 	width: 100%;
@@ -42,27 +43,29 @@
     display: flex;
     float: left;
     margin-top: 50px;
-    margin-left: 17vw;
+    margin-left: 10vw;
     flex-direction: column;
-    width: 100vw;
+    width: 160vw;
     
 }
 
 .right-container {
 	position: relative;
-	background-color: grey;
     display: flex;
     float: right;
     margin-top: 50px;
-    margin-left: 9vw;
-    margin-right: 2vw;
+    margin-left: 7vw;
+    margin-right: 5vw;
+    padding-top: 40px;
     flex-direction: column;
-    width: 800px;
-    height: 60%;
+    width: 1000px;
+    height: 500px;
+    border: 2px solid cornflowerblue;
+    border-radius: 30px;
 }
 
 .trade-buttons {
 	position: absolute;
-	margin-bottom: 10px;
+	margin-bottom: 40px;
 	bottom: 0;
 }
