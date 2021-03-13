@@ -20,10 +20,10 @@
             <div class="modal-dialog" role="document">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">Trade confirmation</h5>
+                  <h5 class="modal-title">Trade confirmation</h5>
                   </button>
                 </div>
-                <div id="modalBody" class="modal-body">
+                <div id="quoteModalBody" class="modal-body">
                   <h6>Please confirm below details:</h6>
                   <br>
                   <h6 id="modalAssetName"></h6>
@@ -34,6 +34,40 @@
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                   <button id="placeTrade" type="button" class="btn btn-primary">Place trade</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <!-- INCREASE POSITION MODAL -->
+        <div class="modal fade" id="increasePositionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Position increase</h5>
+                  </button>
+                </div>
+                <div id="quoteModalBody" class="modal-body">
+                  <h6>Please fill below details:</h6>
+                </div>
+                <form id="increasePositionOptions">
+                    <h6 id="increasePositionAssetLastTradedPrice"></h6>
+                    <br>
+                    <h6 id="increasePositionCurrentUnits"></h6>
+                    <br>
+                    <h6 id="increasePositionCurrentValue"></h6>
+                    <label class="form-label">Unit amount</label>
+                    <br>
+                    <input id="increasePositionQuantityBox" type="number" placeholder="E.g. 2, 5, 30" class="form-control">
+                    <br>
+                    <h6 id="or">Or</h6>
+                    <label class="form-label">Cash amount ($)</label>
+                    <br>
+                    <input id="increasePositionCashBox" type="text" placeholder="E.g. 150, 12000" class="form-control">
+                </form>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  <button id="increasePositionExecute" type="button" class="btn btn-primary">Purchase</button>
                 </div>
               </div>
             </div>
@@ -66,8 +100,6 @@
                     </thead>
                     <!-- MAIN POSITIONS/HOLDINGS TABLE -->
                     <tbody id="positions-table">
-                        <tr>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -79,9 +111,7 @@
                 <div id="trade-container">
                     <form id="trade-options">
                     <div class="dropdown">
-                        <button id="assetDropdownHeader" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Select asset
-                        </button>
+                        <button id="assetDropdownHeader" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select asset</button>
                         <div id="assetDropdownMenu" class="dropdown-menu">
                         </div>
                         </div>
@@ -90,16 +120,16 @@
                         <br>
                         <label class="form-label">Unit amount</label>
                         <br>
-                        <input id="quantityBox" type="text" placeholder="E.g. 2, 5, 30" class="form-control">
+                        <input id="quantityBox" type="number" placeholder="E.g. 2, 5, 30" class="form-control">
                         <br>
                         <h6 id="or">Or</h6>
-                        <label id="cashBox" class="form-label">Cash amount ($)</label>
+                        <label class="form-label">Cash amount ($)</label>
                         <br>
-                        <input type="text" placeholder="E.g. 150, 12000" class="form-control">
+                        <input id="cashBox" type="text" placeholder="E.g. 150, 12000" class="form-control">
                     </form>
                 </div>
                 <div align="center" class="trade-buttons col-12">
-                    <button id="obtain-quote" type="button" class="btn btn-primary col-7" data-toggle="modal" data-target="#quoteModal">Obtain quote</button>
+                    <button id="obtain-quote" type="button" class="btn btn-primary col-7">Obtain quote</button>
                 </div>
             </div>
         </div>

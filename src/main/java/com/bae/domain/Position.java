@@ -14,19 +14,20 @@ public class Position {
 	
 	private String name;
 	
-	private int unitsHeld;
+	private double unitsHeld;
 	
 	private double cost;
 	
 
-	public Position(long id, String name, int unitsHeld, double cost) {
+	public Position(long id, String name, double unitsHeld, double cost) {
 		super();
 		this.id = id;
 		this.name = name;
+		this.unitsHeld = unitsHeld;
 		this.cost = cost;
 	}
 	
-	public Position(String name, int unitsHeld, double cost) {
+	public Position(String name, double unitsHeld, double cost) {
 		this.name = name;
 		this.unitsHeld = unitsHeld;
 		this.cost = cost;
@@ -52,11 +53,11 @@ public class Position {
 		this.name = name;
 	}
 
-	public int getUnitsHeld() {
+	public double getUnitsHeld() {
 		return unitsHeld;
 	}
 
-	public void setUnitsHeld(int unitsHeld) {
+	public void setUnitsHeld(double unitsHeld) {
 		this.unitsHeld = unitsHeld;
 	}
 
