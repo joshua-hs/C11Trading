@@ -12,11 +12,13 @@ public interface PositionService {
 	
 	Position getPositionById(Long id);
 	
+	Position getPositionByName(String name);
+	
 	boolean removePosition(Long id);
 	
 	Position increasePosition(Long id, Position newPosition);
 	
 	Position decreasePosition(Long id, Position newPosition);
 	
-	Position getPositionByName(String name);
+	
 }

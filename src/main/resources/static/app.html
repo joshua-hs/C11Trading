@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+        <link href="styles.css" rel="stylesheet" />
+        <link href="bootstrapmods.css" rel="stylesheet" />
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+
+        <title>C11 Trading</title>
+    </head>
+
+    <body>
+        <!-- MODAL/ORDER CONFIRMATION BOX -->
+        <div class="modal fade" id="quoteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Trade confirmation</h5>
+                  </button>
+                </div>
+                <div id="quoteModalBody" class="modal-body">
+                  <h6>Please confirm below details:</h6>
+                  <br>
+                  <h6 id="modalAssetName"></h6>
+                  <h6 id="modalQuantity"></h6>
+                  <h6 id="modalPrice"></h6>
+                  <h6 id="modalCost"></h6>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  <button id="placeTrade" type="button" class="btn btn-primary">Place trade</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <!-- INCREASE POSITION MODAL -->
+        <div class="modal fade" id="increasePositionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Increase position</h5>
+                  </button>
+                </div>
+                <form id="increasePositionOptions">
+                  <br>
+                  <h6 id="increasePositionAssetLastTradedPrice"></h6>
+                  <br>
+                  <h6 id="increasePositionCurrentUnits"></h6>
+                  <br>
+                  <h6 id="increasePositionCurrentValue"></h6>
+                  <br>
+                  <label class="form-label"><b>Units to purchase</b></label>
+                  <br>
+                  <input id="increasePositionQuantityBox" placeholder="E.g. 2, 5, 30" class="form-control">
+                  <br>
+                  <br>
+                </form>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  <button id="increasePositionExecute" type="button" class="btn btn-primary">Purchase</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <!-- REDUCE POSITION MODAL -->
+        <div class="modal fade" id="decreasePositionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Reduce position</h5>
+                  </button>
+                </div>
+                <form id="decreasePositionOptions">
+                  <br>
+                  <h6 id="decreasePositionAssetLastTradedPrice"></h6>
+                  <br>
+                  <h6 id="decreasePositionCurrentUnits"></h6>
+                  <br>
+                  <h6 id="decreasePositionCurrentValue"></h6>
+                  <br>
+                  <input class="form-check-input" type="checkbox" value="1" id="sellEntireHoldingCheckBox" unchecked= "unchecked">
+                  <label class="form-check-label" for="sellEntireHoldingCheckBox">
+                      <b>Sell entire holding (realize profit/loss)</b>
+                  </label>
+                  <br>
+                  <br>
+                  <label class="form-label"><b>Units to sell</b></label>
+                  <br>
+                  <input id="decreasePositionQuantityBox" placeholder="E.g. 2, 5, 30" class="form-control">
+                  <br>
+                  <br>
+                </form>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  <button id="decreasePositionExecute" type="button" class="btn btn-primary">Sell</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <!-- MAIN BANNER -->
+        <div id="main-banner">
+            <img src="https://i.kym-cdn.com/entries/icons/facebook/000/033/559/cover1.jpg" width="160" height="120">
+            <h1 id="main-heading">C11 Trading</h1>
+        </div>
+
+        <div class="container">
+            <div class="row justify-content-md-center" align="center">
+            </div>
+        </div>
+
+        <div class="main-container">
+            <div class="left-container">
+                <table class="table main-table">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">Asset</th>
+                            <th scope="col">Units held</th>
+                            <th scope="col">Current price per unit</th>
+                            <th scope="col">Value of position</th>
+                            <th scope="col">Cost of position</th>
+                            <th scope="col">Unrealized profit/loss</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <!-- MAIN POSITIONS/HOLDINGS TABLE -->
+                    <tbody id="positions-table">
+                    </tbody>
+                    <tr id="userCashBalance">
+                        <!-- WHERE AVAILABLE CAPITAL IS SHOWN -->
+                    </tr>
+                    <tr id="totalPortfolioValue">
+                      
+                    </tr>
+                </table>
+            </div>
+            
+
+            <!-- ORDERING/PURCHASING DESK -->
+            <div class="right-container">
+                <h3 class="purchasing-desk">Purchase new asset</h3>
+                <div id="trade-container">
+                    <form id="trade-options">
+                    <div class="dropdown">
+                        <button id="assetDropdownHeader" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select asset</button>
+                        <div id="assetDropdownMenu" class="dropdown-menu">
+                        </div>
+                        </div>
+                        <br>
+                        <h6 id="lastTradedPrice"></h6>
+                        <br>
+                        <label class="form-label">Unit amount</label>
+                        <br>
+                        <input id="quantityBox" type="number" placeholder="E.g. 2, 5, 30" class="form-control">
+                        <br>
+                        <h6 id="or">Or</h6>
+                        <label class="form-label">Cash amount ($)</label>
+                        <br>
+                        <input id="cashBox" type="text" placeholder="E.g. 150, 12000" class="form-control">
+                    </form>
+                </div>
+                <div align="center" class="trade-buttons col-12">
+                    <button id="obtain-quote" type="button" class="btn btn-primary col-7">Obtain quote</button>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="app.js" type="module"></script>
+    </body>
+
+</html>

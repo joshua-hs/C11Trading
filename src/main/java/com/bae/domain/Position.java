@@ -18,19 +18,24 @@ public class Position {
 	
 	private double cost;
 	
+	private long owner;
+	
 
-	public Position(long id, String name, double unitsHeld, double cost) {
+	public Position(long id, String name, double unitsHeld, double cost, long owner) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.unitsHeld = unitsHeld;
 		this.cost = cost;
+		this.owner = owner;
 	}
 	
-	public Position(String name, double unitsHeld, double cost) {
+	public Position(String name, double unitsHeld, double cost, long owner) {
+		super();
 		this.name = name;
 		this.unitsHeld = unitsHeld;
 		this.cost = cost;
+		this.owner = owner;
 	}
 	
 	public Position() {
@@ -68,6 +73,16 @@ public class Position {
 	public void setCost(double cost) {
 		this.cost = cost;
 	}
+
+	public long getOwner() {
+		return owner;
+	}
+
+	public void setOwner(long owner) {
+		this.owner = owner;
+	}
+	
+	
 	
 	
 }

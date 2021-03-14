@@ -34,6 +34,11 @@ public class PositionServiceDB implements PositionService {
 		Optional<Position> optPosition = this.repo.findById(id);
 		return optPosition.get();
 	}
+	
+	@Override
+	public Position getPositionByName(String name) {
+		return repo.findByName(name);
+	}
 
 	@Override
 	public boolean removePosition(Long id) {
@@ -69,9 +74,5 @@ public class PositionServiceDB implements PositionService {
 		return updated;
 	}
 
-	@Override
-	public Position getPositionByName(String name) {
-		return repo.findByName(name);
-	}
 
 }

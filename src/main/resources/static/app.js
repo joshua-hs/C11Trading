@@ -1,10 +1,21 @@
-
 "use strict";
 
-const coinbaseApiEndpoint = "https://api.pro.coinbase.com/products/"
+//App begins
 const localhostApiEndpoint = "http://localhost:8080/"
+const coinbaseApiEndpoint = "https://api.pro.coinbase.com/products/"
+const coinbaseSpotApiEndpoint = "https://api.coinbase.com/v2/prices/"
 
 const availableAssets = ["Bitcoin", "Ethereum", "Uniswap"]
+
+const assetsTicker = {
+    "Bitcoin": "BTC",
+    "Ethereum": "ETH",
+    "Uniswap": "UNI"
+}
+
+let userId = localStorage.getItem("userId");
+
+console.log("userId: " + userId);
 
 let tradeInfo;
 
@@ -12,11 +23,6 @@ let globalPositionInfo;
 
 let modificationAssetPrice;
 
-const assetsTicker = {
-    "Bitcoin": "BTC",
-    "Ethereum": "ETH",
-    "Uniswap": "UNI"
-}
 
 //Load coin selection dropdown
 function loadDropDownMenu() {
@@ -60,26 +66,50 @@ function loadModal(assetJson) {
         units = parseFloat(document.getElementById("quantityBox").value);
         cost = price * units;
     } else {
-        units = parseFloat(document.getElementById("cashBox").value) / price;
+        units = parseFloat((document.getElementById("cashBox").value) / price).toFixed(9);
         cost = parseFloat(document.getElementById("cashBox").value);
     };
 
     document.getElementById("modalAssetName").innerHTML = "Asset: " + asset.bold();
-    document.getElementById("modalQuantity").innerHTML = "Units: " + units.toFixed(9).toString().bold();
+    document.getElementById("modalQuantity").innerHTML = "Units: " + units.toString().bold();
     document.getElementById("modalPrice").innerHTML = "Price per unit: " + toUSD(price).bold();
     document.getElementById("modalCost").innerHTML = "Total order cost: " + toUSD(cost).bold();
 
     tradeInfo = {
         "name": asset,
         "unitsHeld": units,
-        "cost": cost
+        "cost": cost,
+        "owner": userId
     }
 
+}
+
+// WHY DOESN'T THIS WORK???
+// async function getAvailableCapital() {
+//     await axios.get(localhostApiEndpoint + "getAvailableCapital/" + userId)
+//     .then(res => {
+//         console.log(res.data);
+//         return res.data;
+//     }).catch(err => console.log(err));
+// }
+
+
+function modifyAvailableCapital(capitalAdjustment) {
+    const adjustmentJson = {
+        "availableCapital": capitalAdjustment
+    };
+    axios.put(localhostApiEndpoint + "modifyAvailableCapital/" + userId, adjustmentJson)
+    .then(res => {
+        return res.data.availableCapital;
+    }).catch(err => console.log(err));
 }
 
 
 function insertNewTrade(trade) {
     $('#quoteModal').modal('hide');
+
+    modifyAvailableCapital(trade.cost * -1);
+
     axios.post(localhostApiEndpoint + "createPosition", trade)
     .then(res => {
         loadTableData();
@@ -96,14 +126,43 @@ function loadIncreasePositionModal(positionInfo) {
     .then(res => {
         document.getElementById("increasePositionAssetLastTradedPrice").innerText = `Current price of ${positionInfo.name}: ` + toUSD(res.data.price); 
         modificationAssetPrice = res.data.price;
+        document.getElementById("increasePositionCurrentValue").innerText = "Current value of units: " + toUSD(positionInfo.unitsHeld * modificationAssetPrice);
     }).catch(err => console.log(err));
 
     document.getElementById("increasePositionCurrentUnits").innerText = "Current units held: " + positionInfo.unitsHeld;
-    document.getElementById("increasePositionCurrentValue").innerText = positionInfo.value;
     
     globalPositionInfo = positionInfo;
 
 }
+
+
+function loadDecreasePositionModal(positionInfo) {
+    $('#decreasePositionModal').modal('show')
+    document.getElementById("sellEntireHoldingCheckBox").checked = false;
+    document.getElementById("decreasePositionAssetLastTradedPrice").innerText = 
+    axios.get(coinbaseApiEndpoint + `${positionInfo.name}-usd/ticker`)
+    .then(res => {
+        document.getElementById("decreasePositionAssetLastTradedPrice").innerText = `Current price of ${positionInfo.name}: ` + toUSD(res.data.price); 
+        modificationAssetPrice = res.data.price;
+        document.getElementById("decreasePositionCurrentValue").innerText = "Current value of units: " + toUSD(positionInfo.unitsHeld * modificationAssetPrice);
+    }).catch(err => console.log(err));
+
+    document.getElementById("decreasePositionCurrentUnits").innerText = "Current units held: " + positionInfo.unitsHeld;
+    
+    globalPositionInfo = positionInfo;
+
+}
+
+document.getElementById("sellEntireHoldingCheckBox").addEventListener("change", () => {
+    if (document.getElementById("sellEntireHoldingCheckBox").checked) {
+        console.log(globalPositionInfo.unitsHeld);
+        document.getElementById("decreasePositionQuantityBox").value = globalPositionInfo.unitsHeld;
+        document.getElementById("decreasePositionQuantityBox").disabled = true;
+    } else {
+        document.getElementById("decreasePositionQuantityBox").disabled = false;
+    }
+})
+    
 
 
 function executeIncreasePosition() {
@@ -114,20 +173,77 @@ function executeIncreasePosition() {
         additionalUnits = parseFloat(document.getElementById("increasePositionQuantityBox").value);
         additionalCost = price * additionalUnits;
     } else {
-        units = parseFloat(document.getElementById("increasePositionQuantityBox").value) / price;
+        additionalUnits = parseFloat(document.getElementById("increasePositionQuantityBox").value) / price;
         additionalCost = parseFloat(document.getElementById("increasePositionCashBox").value);
     };
 
-    let positionIncreaseJSON = {
+    const positionIncreaseJSON = {
         "name": globalPositionInfo.name,
         "unitsHeld": additionalUnits,
         "cost": additionalCost
     }
+
     $('#increasePositionModal').modal('hide');
+
+    modifyAvailableCapital(positionIncreaseJSON.cost * -1);
+
     axios.put(localhostApiEndpoint + "increasePosition/" + globalPositionInfo.id, positionIncreaseJSON)
     .then(res => {
         loadTableData();
     }).catch(err => console.log(err));
+}
+
+
+function executeDecreasePosition() {
+    const price = modificationAssetPrice;
+    let unitsToSell;
+    let cashToRealize;
+    if (document.getElementById("decreasePositionQuantityBox").value !== "") {
+        unitsToSell = parseFloat(document.getElementById("decreasePositionQuantityBox").value);
+        cashToRealize = price * unitsToSell;
+    } else {
+        unitsToSell = parseFloat(document.getElementById("decreasePositionQuantityBox").value) / price;
+        cashToRealize = parseFloat(document.getElementById("decreasePositionCashBox").value);
+    };
+
+    if (unitsToSell == globalPositionInfo.unitsHeld) {
+        sellAllUnits();
+        return;
+    }
+
+    const positionDecreaseJSON = {
+        "name": globalPositionInfo.name,
+        "unitsHeld": unitsToSell,
+        "cost": cashToRealize
+    }
+    
+
+    $('#decreasePositionModal').modal('hide');
+
+    modifyAvailableCapital(positionDecreaseJSON.cost);
+
+    axios.put(localhostApiEndpoint + "decreasePosition/" + globalPositionInfo.id, positionDecreaseJSON)
+    .then(res => {
+        loadTableData();
+    }).catch(err => console.log(err));
+}
+
+
+function sellAllUnits () {
+    let cashToRealize = globalPositionInfo.unitsHeld * modificationAssetPrice;
+    console.log(cashToRealize);
+
+    $('#decreasePositionModal').modal('hide');
+
+    modifyAvailableCapital(cashToRealize);
+
+    axios.delete(localhostApiEndpoint + "removePosition/" + globalPositionInfo.id)
+    .then(res => {
+        loadTableData();
+    }).catch(err => console.log(err));
+
+
+
 }
 
 
@@ -136,9 +252,11 @@ document.getElementById("obtain-quote").addEventListener("click", () => {
     const assetName = document.getElementById("assetDropdownHeader").innerText;
 
     if (assetName == "Select asset") {
-        alert("Please choose an asset")
+        alert("Please choose an asset.")
+    } else if ((document.getElementById("quantityBox").value !== "") && (document.getElementById("cashBox").value !== "")) {
+        alert("Cannot input both unit and cash amount. Please use one or the other.")
     } else {
-        axios.get(coinbaseApiEndpoint + `prices/${assetsTicker[assetName]}-usd/spot`)
+        axios.get(coinbaseSpotApiEndpoint + `${assetsTicker[assetName]}-usd/spot`)
         .then(res => {
             loadModal(res.data.data);
         })
@@ -148,31 +266,52 @@ document.getElementById("obtain-quote").addEventListener("click", () => {
 })
 
 
-//Send new position to backend
+//Send new position to backend (CREATE)
 document.getElementById("placeTrade").addEventListener("click", () => {
     insertNewTrade(tradeInfo);
 })
 
 
-//Send position increase instruction to backend
+//Send position increase instruction to backend (UPDATE)
 document.getElementById("increasePositionExecute").addEventListener("click", () => {
     executeIncreasePosition();
+
 })
 
 
-//Load main positions table
-function loadTableData() {
+//Send position decrease instruction to backend (UPDATE)
+document.getElementById("decreasePositionExecute").addEventListener("click", () => {
+    if (document.getElementById("decreasePositionQuantityBox").value > globalPositionInfo.unitsHeld) {
+        alert("You cannot sell more units than you hold.")
+        return;
+    } else {
+        executeDecreasePosition();
+    }
+})
+
+
+//Load main positions table (READ)
+async function loadTableData() {
     const positionsTable = document.getElementById("positions-table");
 
-    axios.get("http://localhost:8080/getPositions")
+    axios.get(localhostApiEndpoint + "getPositions")
     .then(res => {
         positionsTable.innerHTML = "";
         const myPositions = res.data;
         myPositions.forEach(position => {
-            const newPosition = renderPosition(position);
-            positionsTable.appendChild(newPosition);
+            if (position.owner == userId) {
+                const newPosition = renderPosition(position);
+                positionsTable.appendChild(newPosition);
+            }
         })
     }).catch(err => console.log(err));
+
+
+    axios.get(localhostApiEndpoint + "getAvailableCapital/" + userId)
+    .then(res => {
+        document.getElementById("userCashBalance").innerHTML = "Available capital: " + toUSD(res.data).toString().bold();
+    }).catch(err => console.log(err));
+
 
 }
 
@@ -200,10 +339,8 @@ function renderPosition(position) {
         positionValue.innerText = toUSD(res.data.price * positionUnitsHeld.innerText);
         positionUnrealized.innerText = toUSD(res.data.price * positionUnitsHeld.innerText - position.cost);
         if (res.data.price * positionUnitsHeld.innerText - position.cost > 0) {
-            console.log("it true");
             positionUnrealized.className = "gains";
         } else {
-            console.log("it false");
             positionUnrealized.className = "loss";
         }
     }).catch(err => console.log(err));
@@ -218,6 +355,9 @@ function renderPosition(position) {
     const positionDecrease = document.createElement("button");
     positionDecrease.className = "btn btn-danger";
     positionDecrease.innerText = "Sell";
+    positionDecrease.addEventListener("click", () => {
+        loadDecreasePositionModal(position);
+    })
 
     const positionActions = document.createElement("td");
     positionActions.appendChild(positionIncrease);
@@ -234,6 +374,8 @@ function renderPosition(position) {
     return newRow;
 }
 
+
+//Format values to resemble currency
 function toUSD(amount) {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
 }
