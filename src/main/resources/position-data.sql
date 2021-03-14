@@ -1,0 +1,1 @@
+INSERT INTO `position` (`name`, `units_held`, `cost`, `owner`) VALUES ('BTC', 3, 180000, 1);

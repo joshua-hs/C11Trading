@@ -1,0 +1,1 @@
+INSERT INTO `user` (`name`, `available_capital`) VALUES ('Bobby', 1000000);

@@ -50,11 +50,11 @@ public class Position {
 		this.id = id;
 	}
 
-	public String getname() {
+	public String getName() {
 		return name;
 	}
 
-	public void setname(String name) {
+	public void setName(String name) {
 		this.name = name;
 	}
 
@@ -81,8 +81,52 @@ public class Position {
 	public void setOwner(long owner) {
 		this.owner = owner;
 	}
-	
-	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		long temp;
+		temp = Double.doubleToLongBits(cost);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + (int) (id ^ (id >>> 32));
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + (int) (owner ^ (owner >>> 32));
+		temp = Double.doubleToLongBits(unitsHeld);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Position other = (Position) obj;
+		if (Double.doubleToLongBits(cost) != Double.doubleToLongBits(other.cost))
+			return false;
+		if (id != other.id)
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (owner != other.owner)
+			return false;
+		if (Double.doubleToLongBits(unitsHeld) != Double.doubleToLongBits(other.unitsHeld))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "Position [id=" + id + ", name=" + name + ", unitsHeld=" + unitsHeld + ", cost=" + cost + ", owner="
+				+ owner + "]";
+	}
 	
 	
 }
